@@ -27,8 +27,11 @@ Pasos a seguir:
 
 	npm i  body-parser express  mysql2 passport passport-local express-session
 
-2 - Copiar el contenido del archivo db.sql que está en la carpeta database y ejecutarlo en MySql Workbench.
+2 - Se debe configurar en archivo index.js y baseDeDatos.js el host(ip o direccion de la aplicacion sql), user(usuario configurado en el servidor sql) y password(contraseña del usuario sql) segun la ubicacion del sql.
 
+3- Ejecutar la configuracion de la Base de Datos:
+
+	node baseDeDatos.js
 
 4 - Ejecutar:
 
