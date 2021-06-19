@@ -44,40 +44,14 @@ const connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log('Connected to MySQL Server!');
-
-  /*connection.query("select * from usuarios", function (err, rows) {
-    if (err)
-      console.log("ERROR" + err)
-    console.log("Columns " + JSON.stringify(rows))
-  });*/
-
-  connection.query("SELECT * FROM `pedidosPorUsuario` LEFT JOIN productosPedidos ON pedidosPorUsuario.idPedido = productosPedidos.idPedido WHERE pedidosPorUsuario.idUsuario=9", function (err, rows) {
-    if (err)
-      console.log("ERROR" + err)
-    console.log("Columns " + JSON.stringify(rows))
-  });
-
 });
 
-/*server.get('/', function(req, res) {
-  //res.sendFile(path.join(__dirname + '/login.html'));
-});
-
-server.get('/AltaUsuarios', function(req, res) {
-  //res.sendFile(path.join(__dirname + '/signUp.html'));
-});*/
 
 //inicializamos el server en el puerto 3000
 server.listen(3000, () => {
   console.log('servidor iniciado... ');
 })
 
-//inicializamos un objeto respuesta 
-let respuesta = {
-  error: false,
-  codigo: 200,
-  mensajes: 'ok'
-};
 
 ////////// USO PASSPORT ======================================================================== 
 passport.use('local-login', new PassportLocal({
