@@ -25,14 +25,14 @@ Pasos a seguir:
 
 1 - Ejecutar el siguiente comando desde la carpeta del proyecto:
 
- //ver npm con gasti npm i bcrypt body-parser dotenv express jsonwebtoken mysql2 nodemon
+	npm i  body-parser express  mysql2 passport passport-local express-session
 
 2 - Copiar el contenido del archivo db.sql que está en la carpeta database y ejecutarlo en MySql Workbench.
 
 
 4 - Ejecutar:
 
-```npm start```
+	npm start
 
 5- Desde Postman escribir las rutas con sus correspondientes recursos (GET, POST, PUT, DELETE).
 
@@ -74,13 +74,13 @@ Admin de prueba:
 }
 
 Para usar los siguientes endpoints, siempre se tiene que estar logeado. 
-Se corre npm start, se logea en postman, y luego se usan los endpoints.
+Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados a continuacion:
 
     Obtener todos los platos del restoran (los que estan habilitados y los que no.)
 
 GET /platos
 
-No requiere body. Para acceder tenes que estar logeado, y solo el admin tiene permiso.
+No requiere body.  solo el admin tiene permiso.
 
 	Obtener todos los platos del restoran habilitados (Son los que se pueden vender.)
 	
