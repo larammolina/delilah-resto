@@ -41,12 +41,17 @@ Pasos a seguir:
 
 Documentacion: https://app.swaggerhub.com/apis-docs/larammolina/Delilah-Resto-API/1#/
 
-1 - Poder registrar un nuevo usuario: Usar /singup y luego /login.
-2 - Un usuario debe poder listar todos los productos disponibles. Usar /login, luego /crearPlatos y luego /platosHabilitados.
-3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea.	Usar /login, luego /altaPedido.
-4 - El usuario con roles de administrador debe poder actualizar el estado del pedido. Usar /login, luego /estadoPedido/idPedido
-5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos). Usar /login, luego /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato.	
-6 - Un usuario sin roles de administrador no debe poder crear, editar o eliminar un producto, ni editar o eliminar un pedido. Tampoco debe poder acceder a informaciones de otros usuarios. Usar /login, luego /pedidosUsuario/usuario.
+	1 - Poder registrar un nuevo usuario: Usar /singup y luego /login.
+	
+	2 - Un usuario debe poder listar todos los productos disponibles. Usar /login, luego /crearPlatos y luego /platosHabilitados.
+	
+	3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea.	Usar /login, luego /altaPedido.
+	
+	4 - El usuario con roles de administrador debe poder actualizar el estado del pedido. Usar /login, luego /estadoPedido/idPedido
+	
+	5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos). Usar /login, luego /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato.	
+	
+	6 - Un usuario sin roles de administrador no debe poder crear, editar o eliminar un producto, ni editar o eliminar un pedido. Tampoco debe poder acceder a informaciones de otros usuarios. Usar /login, luego /pedidosUsuario/usuario.
 
 
 
