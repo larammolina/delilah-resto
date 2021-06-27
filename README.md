@@ -41,6 +41,16 @@ Pasos a seguir:
 
 Documentacion: https://app.swaggerhub.com/apis-docs/larammolina/Delilah-Resto-API/1#/
 
+1 - Poder registrar un nuevo usuario: Usar /singup y luego /login.
+2 - Un usuario debe poder listar todos los productos disponibles. Usar /login, luego /crearPlatos y luego /platosHabilitados.
+3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea.	Usar /login, luego /altaPedido.
+4 - El usuario con roles de administrador debe poder actualizar el estado del pedido. Usar /login, luego /estadoPedido/idPedido
+5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos). Usar /login, luego /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato.	
+6 - Un usuario sin roles de administrador no debe poder crear, editar o eliminar un producto, ni editar o eliminar un pedido. Tampoco debe poder acceder a informaciones de otros usuarios. Usar /login, luego /pedidosUsuario/usuario.
+
+
+
+
     Creación de usuarios (no admins, solo clientes)
 
 POST /singup 
@@ -83,7 +93,7 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 GET /platos
 
-No requiere body.  solo el admin tiene permiso.
+No requiere body.  solo el admin tiene permiso. Hay que hacer login antes de usar este endpoint.
 
 	Obtener todos los platos del restoran habilitados (Son los que se pueden vender.)
 	
@@ -95,9 +105,13 @@ No requiere body. Tenes que estar logeado.
 
 POST /crearPlatos
 
+Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Ademas se debe enviarpor body "usuario":"admin", "contrasenia":"admin", descripcion y precio del plato. Al dar de alta un plato, se envia por default el estado 1 en la columna habilitado. Si luego se quiere deshabilitar, usar el endpoint deshabilitarPlato/idPlato.
+
 BODY:
 
 {
+   "usuario":"admin",
+   "contrasenia":"admin"
    "descripcion": "milanesa",
    "precio": 120
 }
