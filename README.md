@@ -45,16 +45,16 @@ Documentacion: https://app.swaggerhub.com/apis-docs/larammolina/Delilah-Resto-AP
 	
 	2 - Un usuario debe poder listar todos los productos disponibles. Usar /login, luego /crearPlatos y luego /platosHabilitados.
 	
-	3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea.	Usar /login, luego /altaPedido.
+	3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea. Usar /login, luego /altaPedido.
 	
-	4 - El usuario con roles de administrador debe poder actualizar el estado del pedido. Usar /login, luego /estadoPedido/idPedido
+	4 - El usuario con roles de administrador debe poder actualizar el estado del pedido. Usar /login, luego /estadoPedido/idPedido 
 	
-	5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos). Usar /login, luego /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato.	
+	5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos). Usar /login, luego /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato. (para consultar el id de un plato, usar el endpoint /platos y buscar el plato que se desea consultar)
 	
 	6 - Un usuario sin roles de administrador no debe poder crear, editar o eliminar un producto, ni editar o eliminar un pedido. Tampoco debe poder acceder a informaciones de otros usuarios. Usar /login, luego /pedidosUsuario/usuario.
 
 
-
+---------
 
     Creación de usuarios (no admins, solo clientes)
 
@@ -71,7 +71,7 @@ Se debe ingresar por BODY los siguientes datos:
   "telefono":"43556776"
 }
 
-
+---------
     Loguearse
 
 POST /login
@@ -91,20 +91,27 @@ Admin de prueba:
    "contrasenia":"admin"
 }
 
+---------
+
 Para usar los siguientes endpoints, siempre se tiene que estar logeado. 
 Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados a continuacion:
 
+---------
     Obtener todos los platos del restoran (los que estan habilitados y los que no.)
 
 GET /platos
 
-No requiere body.  solo el admin tiene permiso. Hay que hacer login antes de usar este endpoint.
+No requiere body. Hay que hacer login antes de usar este endpoint.
+
+---------
 
 	Obtener todos los platos del restoran habilitados (Son los que se pueden vender.)
 	
 GET /platosHabilitados (los puede consultar el usuario)
 
 No requiere body. Tenes que estar logeado.
+
+---------
 
     Crear un plato. Solo admin.
 
@@ -121,6 +128,7 @@ BODY:
    "precio": 120
 }
 
+---------
     
     Eliminar plato (funcionalidad apta sólo para administradores). Se requiere estar logeado.
 
@@ -129,6 +137,8 @@ DELETE /borrarPlato/idPlato
 No requiere Body. Se envia por Path el id del plato a borrar. Borrar elimina de la tabla el plato. 
 Si solo se quiere hacer la baja logica del Plato, se recomienda usar el endpoint deshabilitarPlato/idPlato.
 
+---------
+
  	Deshabilitar plato (funcionalidad apta sólo para administradores)
 
 POST /deshabilitarPlato/idPlato
@@ -136,11 +146,15 @@ POST /deshabilitarPlato/idPlato
 No requiere Body. Se envia por Path el id del plato a deshabilitar. No borrar elimina de la tabla el plato. 
 Para volver a habilitarlo, de sebe usar el endpoint habilitarPlato/idPlato.
 
+---------
+
 	Habilitar plato (funcionalidad apta sólo para administradores)
 
 POST /habilitarPlato/idPlato
 
 No requiere Body. Se envia por Path el id del plato a habilitar. 
+
+---------
 
     Crear pedido nuevo
 
@@ -159,11 +173,15 @@ BODY: este pedido contiene 3 platos, plato con id2, plato con id1 y plato con id
 
  }
 
+---------
+
     Obtener todos los pedidos (funcionalidad apta sólo para administradores)
 
 GET /pedidos
 
 No requiere body.
+
+---------
 
     Modificar estado de un pedido (funcionalidad apta sólo para administradores)
 
@@ -177,6 +195,8 @@ BODY:
 }
 
 Siendo los estados: 1- nuevo 2- confirmado 3- preparando 4- enviando 5- entregado
+
+---------
 
  	Obtener todos los pedidos de un usuario en particular 
 	
