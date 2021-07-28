@@ -11,10 +11,10 @@ const { Console } = require('console');
 
 
 // parse application/x-www-form-urlencoded
-server.use(bodyParser.urlencoded({ extended: false }))
+//server.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
-server.use(bodyParser.json())
+//server.use(bodyParser.json())
 
 
 function log(req, res, next) {
@@ -29,6 +29,7 @@ server.use(log);
 //////// PASSPORT ============================================================
 
 server.use(express.urlencoded({ extended: true }));
+server.use(express.json());
 server.use(passport.initialize());
 server.use(passport.session());
 
@@ -85,12 +86,22 @@ passport.use('local-signup', new PassportLocal({
   console.log('CHEQUEANDDO')
   connection.query("SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario + "'", function (err, rows) {
     if (err) {
-      console.log(err)
-      return done(err);
+      console.log( "Error1" + err)
+      let respuesta = {
+        error: true,
+        codigo: 401,
+        mensajes: 'Error'
+      };
+      return done(null, null, respuesta);
     }
     if (rows.length > 0) {
       console.log('Ya existe: ' + rows.length)
-      return done(null, false, { mensajes: 'ya existe el usuario' });
+      let respuesta = {
+        error: true,
+        codigo: 401,
+        mensajes: 'El usuario ya existe'
+      };
+      return done(null, false, respuesta);
     } else {  //sino lo creo
       //insertar en la tabla de usuarios el usuario ingresado
       console.log('lo voy a crear')
@@ -108,11 +119,21 @@ passport.use('local-signup', new PassportLocal({
           // HAY QUE RESPONDERLE EL USUARIO
           connection.query("SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario + "'", function (err, rows) {
             if (err) {
-              console.log(err)
-              return done(err);
+              console.log( "Error2" + err)
+              let respuesta = {
+                error: true,
+                codigo: 401,
+                mensajes: 'Error'
+              };
+              return done(null, null, respuesta);
             }
             console.log('RESULTADO: ' + rows[0])
-            done(null, rows[0]);  // callback para devolver la info. null: pq no hay error, y el usuario
+            let respuesta = {
+              error: false,
+              codigo: 200,
+              mensajes: 'OK'
+            };
+            done(null, null, respuesta);  // callback para devolver la info. null: pq no hay error, y el usuario
           });
         }
 
@@ -155,22 +176,7 @@ function esAdmin(req, res, next) {
   });
 }
 
-function esUsuario(req, res, next) {
-  connection.query("SELECT `perfil` FROM `usuarios` WHERE `usuario` = '" + req.body.usuario + "'", function (err, rows) {
-    if (err) {
-      console.log(err)
-      res.status('401').json('no existe usuario')
-    }
-    console.log('RESULTADO: ' + JSON.stringify(rows))
-    //console.log('RESULTADO: ' + rows[0].perfil)
-    if (rows[0].perfil === 'user') {
-      next();
-    } else {
-      console.log(err)
-      res.status('401').json('no tiene permisos de usuario')
-    }
-  });
-}
+
 
 ////////// ======= ENDPOINTS ====================================================================================
 
@@ -179,10 +185,9 @@ function esUsuario(req, res, next) {
 server.post('/signup', passport.authenticate('local-signup'),  //escucha los datos que envia el user del get
   // le digo que usse el meotod local-signup que cree en routes ara auutennticarse
   function (req, res) {
-    // authentication successful
-    console.log(res);
-    console.log('OK CREADO-----------------------')
-    res.send('OK creado')
+      // authentication successful
+      console.log("Resp:" + res);
+      res.json(res); // la respuesta me la el middelware
   }
 )
 
@@ -200,10 +205,15 @@ server.post('/login', passport.authenticate('local-login'),
 ////////// VER PLATOS ENDPOINT ====================================================================================
 server.get('/platos', function (req, res) {
 
-  connection.query("SELECT * FROM `platos`", esAdmin, function (err, rows) {
+  connection.query("SELECT * FROM `platos`", function (err, rows) {
     if (err) {
       console.log(err)
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 401,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
@@ -219,11 +229,21 @@ server.get('/platosHabilitados', function (req, res) {
   connection.query("SELECT * FROM `platos` WHERE habilitado=1", function (err, rows) {
     if (err) {
       console.log(err)
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 401,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
       //ver como manda el pedido para mostrarlo por json
+      //let respuesta = {
+      //  error: true,
+       // codigo: 200,
+      //  mensajes: 'OK'
+      //};
       res.status(200).json(rows);
     }
   });
@@ -235,37 +255,59 @@ server.put('/actualizarPlato/:id', esAdmin, function (req, res) {
   const { id } = req.params;
   let descripcion = req.body.descripcion;
   let precio = req.body.precio;
-  let actualizarPedido = "UPDATE `platos` SET descripcion =" + descripcion + ", precio=" + precio + "WHERE id=" + id;
+  let actualizarPedido = "UPDATE `platos` SET descripcion='" + descripcion + "', precio='" + precio + "' WHERE id=" + id;
+  console.log(actualizarPedido)
   connection.query(actualizarPedido, function (err, rows) {
     if (err) {
       console.log(err)
       console.log('el plato NO se actualizo')
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
       //ver como manda el pedido para mostrarlo por json
       console.log('el plato se actualizo')
-      res.status(200).json(rows);
+      let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Se actualizo ok'
+      };
+      res.json(respuesta);
     }
   });
 });
 
 ////////// CREAR PLATOS ENDPOINT ====================================================================================
 server.post('/crearPlatos', esAdmin, function (req, res) {
-  let descripcion = req.body.descripcion;
-  let precio = req.body.precio;
-  var crearPlato = "INSERT INTO platos(descripcion, foto, precio, habilitado) VALUES(" + descripcion + ",foto," + precio + ",1)";
+  let descripcion1 = req.body.descripcion;
+  let precio2 = req.body.precio;
+  console.log(descripcion1);
+  var crearPlato = "INSERT INTO platos(descripcion, foto, precio, habilitado) VALUES('" + descripcion1 + "','foto', '" + precio2 + "','1')";
 
   connection.query(crearPlato, function (err, rows) {
     if (err) {
       console.log(err)
-      res.status('401').json('error')
-      console.log('no se pudo dar de alta el plato')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
+      console.log('no se pudo dar de alta el plato' + crearPlato)
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       console.log('plato dado de alta ok');
-      res.status(200).json(rows);
+      let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Se dio de alta ok'
+      };
+      res.json(respuesta);
     }
   });
 });
@@ -280,12 +322,22 @@ server.delete('/borrarPlato/:id', esAdmin, function (req, res) {
     if (err) {
       console.log(err)
       console.log('no se pudo borrar el plato')
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
       console.log('Se borro el plato ok')
-      res.status(200).json(rows);
+      let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Se borro el plato ok'
+      };
+      res.json(respuesta);
     }
   });
 });
@@ -298,12 +350,22 @@ server.put('/deshabilitarPlato/:id', esAdmin, function (req, res) {
   connection.query(deshabilitarPlato, function (err, rows) {
     if (err) {
       console.log(err)
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
       //ver como manda el pedido para mostrarlo por json
-      res.status(200).json(rows);
+      let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Se deshabilito el plato ok'
+      };
+      res.json(respuesta);
     }
   });
 });
@@ -317,12 +379,22 @@ server.put('/habilitarPlato/:id', esAdmin, function (req, res) {
   connection.query(habilitarPlato, function (err, rows) {
     if (err) {
       console.log(err)
-      res.status('401').json('error')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
       //console.log('RESULTADO: ' + rows[0].perfil)
       //ver como manda el pedido para mostrarlo por json
-      res.status(200).json(rows);
+      let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Se habilito el plato ok'
+      };
+      res.json(respuesta);
     }
   });
 });
@@ -334,6 +406,7 @@ server.post('/altaPedido', function (req, res) {
   //recibir pedidos 
   //recibir usuario
   //busco id de usuario
+  console.log("Usuario: "+req.body.usuario);
   var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + req.body.usuario + "'";
   console.log('platos: ' + req.body.platos);
   let platos = req.body.platos;
@@ -359,7 +432,7 @@ server.post('/altaPedido', function (req, res) {
       if (err) {
         let respuesta = {
           error: true,
-          codigo: 404,
+          codigo: 401,
           mensajes: 'No se pudo dar de alta el pedido1'
         };
         console.log(err);
@@ -371,8 +444,9 @@ server.post('/altaPedido', function (req, res) {
         console.log(JSON.stringify(results.insertId));
         let idPedido = JSON.stringify(results.insertId);
 
-        if (platos.length <= 1) {
-          //console.log('TAMAÑÑÑOOOOOOOOOO '+platos.length);
+        //if (platos.length <= 1) {
+        if(Array.isArray(platos) == false){
+          console.log('NO ES ARRAY -- TAMAÑO '+platos.length);
           //envio la lista al SQL
           var sql = `INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) VALUES ('${idPedido}', '${platos}', '${1}' )`;
 
@@ -380,7 +454,7 @@ server.post('/altaPedido', function (req, res) {
             if (err) {
               let respuesta = {
                 error: true,
-                codigo: 404,
+                codigo: 401,
                 mensajes: 'No se pudo dar de alta el pedido1'
               };
               console.log(err);
@@ -400,6 +474,7 @@ server.post('/altaPedido', function (req, res) {
 
 
         } else {
+          console.log('ES ARRAY -- TAMAÑÑÑOOOOOOOOOO '+platos.length);
           let current = 0, cnt = 0;
           //Ordeno la cantidad y saco cuanto hay de cada uno
           platos.sort();
@@ -511,7 +586,7 @@ server.get('/pedidos', esAdmin, function (req, res) {
 ////////// VER ESTADO DE UN PEDIDO ENDPOINT ==========================================================================================
 
 //se debe ingresar el id del pedido para ver el estado del mismo
-server.get('/estadosPedido/:idPedido', esAdmin, function (req, res) {
+server.get('/estadoPedido/:idPedido', esAdmin, function (req, res) {
   const { idPedido } = req.params;
   var consultaEstado = "SELECT pedidosPorUsuario.idPedido, pedidosPorUsuario.estado, estados.descripcion FROM `pedidosPorUsuario` LEFT JOIN estados ON pedidosPorUsuario.estado = estados.id WHERE pedidosPorUsuario.idPedido=" + idPedido;
   connection.query(consultaEstado, function (err, rows) {
@@ -532,7 +607,7 @@ server.get('/estadosPedido/:idPedido', esAdmin, function (req, res) {
 server.put('/estadoPedido/:idPedido', esAdmin, function (req, res) {
   //se ingresa el id del pedido que se quiere volver a habilitar
   const { idPedido } = req.params;
-  let actualizarEstado = "UPDATE pedidosPorUsuario SET estado=" + req.body.estado + " WHERE idPedido=" + req.body.idPedido;
+  let actualizarEstado = "UPDATE pedidosPorUsuario SET estado='" + req.body.estado + "' WHERE idPedido=" + idPedido;
   connection.query(actualizarEstado, function (err, rows) {
     if (err) {
       console.log(err)
@@ -545,19 +620,3 @@ server.put('/estadoPedido/:idPedido', esAdmin, function (req, res) {
 });
 
 
-////////// ver todos los ESTADOS ENDPOINT ==========================================================================================
-server.get('/estados', esAdmin, function (req, res) {
-  var consultaEstado = "SELECT * FROM estados ";
-  connection.query(consultaEstado, function (err, rows) {
-    if (err) {
-      console.log(err)
-      res.status('401').json('error')
-    } else {
-      console.log('RESULTADO: ' + JSON.stringify(rows))
-      //console.log('RESULTADO: ' + rows[0].perfil)
-      //ver como manda el pedido para mostrarlo por json
-      res.status(200).json(rows);
-    }
-  });
-
-});

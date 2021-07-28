@@ -13,9 +13,21 @@ let createUsuarios = `create table if not exists usuarios(
     habilitado int
   )`;
 
-  let insertarAdmin = `INSERT INTO usuarios(
-    nombreApellido, usuario, contrasenia, telefono, direcciones, mail, perfil, habilitado)
-    values('admin', 'admin', 'admin', 111111, 'calle falsa 123', 'admin@admin.com', 'admin', 1)`
+let insertarAdmin = `INSERT INTO usuarios(
+  nombreApellido, usuario, contrasenia, telefono, direcciones, mail, perfil, habilitado)
+  values('admin', 'admin', 'admin', 111111, 'calle falsa 123', 'admin@admin.com', 'admin', 1)`
+
+let insertarPlato1 = `INSERT INTO platos(descripcion, foto, precio, habilitado)
+  values('Tarta de Espinaca', 'null', '200', '1')`;
+
+let insertarPlato2 = `INSERT INTO platos(descripcion, foto, precio, habilitado)
+  values('Papas fritas con cheddar', 'null', '300', '1')`;
+
+let insertarPlato3 = `INSERT INTO platos(descripcion, foto, precio, habilitado)
+  values('Empanada de Carne', 'null', '150', '1')`;
+
+let insertarPlato4 = `INSERT INTO platos(descripcion, foto, precio, habilitado)
+  values('Pizza Napolitana de Masa Madre', 'null', '250', '1')`;
 
 let createPlatos = `create table if not exists platos(
     id int primary key auto_increment,
@@ -46,9 +58,6 @@ let createPlatosPorPedido = `create table if not exists productosPedidos(
     idPlato int, 
     cantidadPlato int 
   )`;
-
-
-
 
 
 configuracionSQL();
@@ -121,6 +130,38 @@ function configuracionSQL() {
       console.log(results)
     }
 
+  });
+
+  connection.query(insertarPlato1, function (err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    } else {
+      console.log(results)
+    }
+  });
+
+  connection.query(insertarPlato2, function (err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    } else {
+      console.log(results)
+    }
+  });
+
+  connection.query(insertarPlato3, function (err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    } else {
+      console.log(results)
+    }
+  });
+
+  connection.query(insertarPlato4, function (err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    } else {
+      console.log(results)
+    }
   });
 
 }
