@@ -140,7 +140,7 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	BODY:
 
-	{ "usuario":"admin",
+	{ "usuario":"admin"
 	  
 	}
 
@@ -154,7 +154,7 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	BODY:
 
-	{ "usuario":"admin",
+	{ "usuario":"admin"
 	  
 	}
 
@@ -205,7 +205,7 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	BODY:
 
-	{ "usuario":"admin",
+	{ "usuario":"admin"
 	
 	}
 
