@@ -129,7 +129,13 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	GET /platos
 
-	No requiere body. Hay que hacer login antes de usar este endpoint.
+	Hay que hacer login antes de usar este endpoint.
+	
+	BODY:
+
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
 
 ---------
 
@@ -161,13 +167,19 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 ---------
     
-* Eliminar plato (funcionalidad apta sólo para administradores). Se requiere estar logeado.
+* Eliminar plato (funcionalidad apta sólo para administradores). 
 
 	DELETE /borrarPlato/idPlato
 
-	No requiere Body. Se envia por Path el id del plato a borrar. 
-	Borrar elimina de la tabla el plato. 
+	Se envia por Path el id del plato a borrar. 
+	Elimina de la tabla el plato. 
 	Si solo se quiere hacer la baja logica del Plato, se recomienda usar el endpoint deshabilitarPlato/idPlato.
+	
+	BODY:
+
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
 
 ---------
 
@@ -175,9 +187,14 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /deshabilitarPlato/idPlato
 
-	No requiere Body. Se envia por Path el id del plato a deshabilitar. 
-	No borrar elimina de la tabla el plato. 
+	Se envia por Path el id del plato a deshabilitar. 
 	Para volver a habilitarlo, de sebe usar el endpoint habilitarPlato/idPlato.
+	
+	BODY:
+
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
 
 ---------
 
@@ -185,7 +202,13 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /habilitarPlato/idPlato
 
-	No requiere Body. Se envia por Path el id del plato a habilitar. 
+	Se envia por Path el id del plato a habilitar. 
+	
+	BODY:
+
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
 
 ---------
 
@@ -209,8 +232,13 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 * Obtener todos los pedidos (funcionalidad apta sólo para administradores)
 
 	GET /pedidos
+	
+	BODY:
 
-	No requiere body.
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
+	
 
 ---------
 
@@ -222,8 +250,9 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	BODY:
 
-	{
-	   "estado":"entregado"
+	{ "usuario":"admin",
+	  "contrasenia":"admin", 
+	  "estado":"entregado"
 	}
 
 	Siendo los estados: 1- nuevo 2- confirmado 3- preparando 4- enviando 5- entregado
@@ -234,4 +263,10 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	GET /pedidosUsuario/usuario , example: /pedidosUsuario/macmolin
 
-	No requiere body. Se envia por path el usuario que se desea consultar.
+	Se envia por path el usuario que se desea consultar.
+	
+	BODY:
+
+	{ "usuario":"admin",
+	  "contrasenia":"admin"
+	}
