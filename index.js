@@ -7,7 +7,8 @@ const passport = require('passport');
 const session = require('express-session');
 const PassportLocal = require('passport-local').Strategy;
 const { Console } = require('console');
-//const { authUser, authRole } = require('./auth');
+const jwt = require('jsonwebtoken');
+const config = require('./config');
 
 
 // parse application/x-www-form-urlencoded
@@ -25,6 +26,9 @@ function log(req, res, next) {
 
 server.use(log);
 
+
+//JWT
+server.set('llave', config.llave);
 
 //////// PASSPORT ============================================================
 
@@ -176,7 +180,35 @@ function esAdmin(req, res, next) {
   });
 }
 
-
+//JWT
+function rutasProtegidas(req, res, next) {
+  const token = req.headers['access-token']; 
+  if (token) {
+    console.log("Se envio JWT");
+    jwt.verify(token, server.get('llave'), (err, decoded) => {      
+      if (err) {
+        let respuesta = {
+          error: true,
+          codigo: 404,
+          mensajes: 'ERROR JWT'
+        };
+        console.log("ERROR JWT");
+        return res.json(respuesta); 
+      } else {
+        req.decoded = decoded;    
+        next();
+      }
+    });
+  } else {  // no me pasaron JWT
+    let respuesta = {
+      error: true,
+      codigo: 404,
+      mensajes: 'ERROR NO SE ENVIO JWT'
+    };
+    console.log("ERROR, NO SE ENVIO JWT");
+    res.json(respuesta); 
+  }
+ };
 
 ////////// ======= ENDPOINTS ====================================================================================
 
@@ -197,14 +229,26 @@ server.post('/login', passport.authenticate('local-login'),
   function (req, res) {
     // authentication successful
     console.log(res);
-    res.send('OK')
+    const payload = {
+      check:  true
+     };
+    const token = jwt.sign(payload, server.get('llave'), {
+      expiresIn: 1440
+     });
+
+    let respuesta = {
+        error: false,
+        codigo: 200,
+        mensajes: 'Login OK',
+        JWT: token
+      };
+      res.json(respuesta);
   }
 )
 
 
 ////////// VER PLATOS ENDPOINT ====================================================================================
-server.get('/platos', function (req, res) {
-
+server.get('/platos', rutasProtegidas, function (req, res) {
   connection.query("SELECT * FROM `platos`", function (err, rows) {
     if (err) {
       console.log(err)
@@ -224,7 +268,7 @@ server.get('/platos', function (req, res) {
 });
 
 ////////// VER PLATOS ENDPOINT ====================================================================================
-server.get('/platosHabilitados', function (req, res) {
+server.get('/platosHabilitados', rutasProtegidas, function (req, res) {
 
   connection.query("SELECT * FROM `platos` WHERE habilitado=1", function (err, rows) {
     if (err) {
@@ -251,7 +295,7 @@ server.get('/platosHabilitados', function (req, res) {
 
 
 ////////// ACTUALIZAR PLATOS ENDPOINT ====================================================================================
-server.put('/actualizarPlato/:id', esAdmin, function (req, res) {
+server.put('/actualizarPlato/:id', rutasProtegidas, esAdmin, function (req, res) {
   const { id } = req.params;
   let descripcion = req.body.descripcion;
   let precio = req.body.precio;
@@ -283,7 +327,7 @@ server.put('/actualizarPlato/:id', esAdmin, function (req, res) {
 });
 
 ////////// CREAR PLATOS ENDPOINT ====================================================================================
-server.post('/crearPlatos', esAdmin, function (req, res) {
+server.post('/crearPlatos', rutasProtegidas, esAdmin, function (req, res) {
   let descripcion1 = req.body.descripcion;
   let precio2 = req.body.precio;
   console.log(descripcion1);
@@ -314,7 +358,7 @@ server.post('/crearPlatos', esAdmin, function (req, res) {
 
 
 ////////// BORRAR PLATOS ENDPOINT (seguro queres borrar un plato? no preferis deshabilitarlo?) =========================
-server.delete('/borrarPlato/:id', esAdmin, function (req, res) {
+server.delete('/borrarPlato/:id', rutasProtegidas, esAdmin, function (req, res) {
   //se debe ingresar el id del plato que se quiere borrar
   const { id } = req.params;
   let borrarPlato = "DELETE FROM platos WHERE id=" + id;
@@ -343,7 +387,7 @@ server.delete('/borrarPlato/:id', esAdmin, function (req, res) {
 });
 
 ////////// DESHABILITAR PLATOS ENDPOINT ====================================================================================
-server.put('/deshabilitarPlato/:id', esAdmin, function (req, res) {
+server.put('/deshabilitarPlato/:id', rutasProtegidas, esAdmin, function (req, res) {
   const { id } = req.params;
   let deshabilitarPlato = "UPDATE platos SET habilitado=0 WHERE id=" + id;
 
@@ -371,7 +415,7 @@ server.put('/deshabilitarPlato/:id', esAdmin, function (req, res) {
 });
 
 ////////// HABILITAR PLATOS ENDPOINT ====================================================================================
-server.put('/habilitarPlato/:id', esAdmin, function (req, res) {
+server.put('/habilitarPlato/:id', rutasProtegidas, esAdmin, function (req, res) {
   //se ingresa el id del plato que se quiere volver a habilitar
   const { id } = req.params;
   let habilitarPlato = "UPDATE platos SET habilitado=1 WHERE id=" + id;
@@ -402,7 +446,7 @@ server.put('/habilitarPlato/:id', esAdmin, function (req, res) {
 
 ////////// ALTA PEDIDO ENDPOINT ====================================================================================
 //endpoint para dar de alta pedidos
-server.post('/altaPedido', function (req, res) {
+server.post('/altaPedido', rutasProtegidas, function (req, res) {
   //recibir pedidos 
   //recibir usuario
   //busco id de usuario
@@ -538,7 +582,7 @@ Object.size = function (obj) {
 };
 
 //////////  LOS PEDIDOS DEL USUARIO ENDPOINT ===================================================================
-server.get('/pedidosUsuario/:usuario', function (req, res) {
+server.get('/pedidosUsuario/:usuario', rutasProtegidas, function (req, res) {
   //ver todos los pedidos de ese usuario en particular
   const { usuario } = req.params;
   var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario + "'";
@@ -564,7 +608,7 @@ server.get('/pedidosUsuario/:usuario', function (req, res) {
 });
 
 ////////// TODOS LOS PEDIDOS ADMIN ENDPOINT ===================================================================
-server.get('/pedidos', esAdmin, function (req, res) {
+server.get('/pedidos', rutasProtegidas, esAdmin, function (req, res) {
   //ver todos los pedidos 
   //pedidosPorUsuario.idPedido, pedidosPorUsuario.idUsuario, productosPedidos.idPlato, productosPedidos.cantidadPlato,pedidosPorUsuario.monto, pedidosPorUsuario.formaPago, pedidosPorUsuario.direccion, pedidosPorUsuario.estado, pedidosPorUsuario.fecha
   var consultaPedido = "SELECT * FROM `pedidosPorUsuario` LEFT JOIN productosPedidos ON pedidosPorUsuario.idPedido = productosPedidos.idPedido ";
@@ -586,7 +630,7 @@ server.get('/pedidos', esAdmin, function (req, res) {
 ////////// VER ESTADO DE UN PEDIDO ENDPOINT ==========================================================================================
 
 //se debe ingresar el id del pedido para ver el estado del mismo
-server.get('/estadoPedido/:idPedido', esAdmin, function (req, res) {
+server.get('/estadoPedido/:idPedido', rutasProtegidas, esAdmin, function (req, res) {
   const { idPedido } = req.params;
   var consultaEstado = "SELECT pedidosPorUsuario.idPedido, pedidosPorUsuario.estado, estados.descripcion FROM `pedidosPorUsuario` LEFT JOIN estados ON pedidosPorUsuario.estado = estados.id WHERE pedidosPorUsuario.idPedido=" + idPedido;
   connection.query(consultaEstado, function (err, rows) {
@@ -604,7 +648,7 @@ server.get('/estadoPedido/:idPedido', esAdmin, function (req, res) {
 });
 
 ////////// ACTUALIZAR ESTADO DE UN PEDIDO ENDPOINT ==========================================================================================
-server.put('/estadoPedido/:idPedido', esAdmin, function (req, res) {
+server.put('/estadoPedido/:idPedido', rutasProtegidas, esAdmin, function (req, res) {
   //se ingresa el id del pedido que se quiere volver a habilitar
   const { idPedido } = req.params;
   let actualizarEstado = "UPDATE pedidosPorUsuario SET estado='" + req.body.estado + "' WHERE idPedido=" + idPedido;
