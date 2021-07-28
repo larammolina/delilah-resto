@@ -2,7 +2,7 @@
 API Rest para Delilah Resto - TP3 ACAMICA
 
 Api desarrollada para ser utilizada por un delivery de comidas.
-* Documentacion: https://app.swaggerhub.com/apis-docs/larammolina/Delilah-Resto-API/1#/
+* Documentacion: https://app.swaggerhub.com/apis-docs/larammolina/Delilah-Resto-API/1
 
 * Instalaciones requeridas:
 
