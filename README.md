@@ -27,7 +27,7 @@ Pasos a seguir:
 
 1 - Ejecutar el siguiente comando desde la carpeta del proyecto:
 
-	npm i  body-parser express  mysql2 passport passport-local express-session
+	npm i  body-parser express  mysql2 passport passport-local express-session jsonwebtoken
 
 2 - Se debe configurar en archivo index.js y baseDeDatos.js el host(ip o direccion de la aplicacion sql), user(usuario configurado en el servidor sql) y password(contraseña del usuario sql) segun la ubicacion del sql.
 
