@@ -56,28 +56,24 @@ PARA LA CORRECCIÓN:
 2 - Un usuario debe poder listar todos los productos disponibles:
 	
 	Usar  /crearPlatos y luego /platosHabilitados.
-	Pasar JWT por header.
 	
 3 - Un usuario debe poder generar un nuevo pedido al Restaurante con un listado de platos que desea:
 	
 	Usar  /altaPedido.
-	Pasar JWT por header.
 	
 4 - El usuario con roles de administrador debe poder actualizar el estado del pedido:
 
 	Usar /estadoPedido/idPedido 
-	Pasar JWT por header.
 	
 5 - Un usuario con rol de administrador debe poder realizar las acciones de creación, edición y eliminación de recursos de productos (CRUD de productos).
 
 	Usar  /crearPlatos, /actualizarPlato/idPlato, /borrarPlato/idPlato. 
 	(para consultar el id de un plato, usar el endpoint /platos y buscar el plato que se desea consultar)
-	Pasar JWT por header.
 	
 6 - Un usuario sin roles de administrador no debe poder crear, editar o eliminar un producto, ni editar o eliminar un pedido. Tampoco debe poder acceder a informaciones de otros usuarios:
 
 	Usar  /pedidosUsuario/usuario.
-	Pasar JWT por header.
+
 
 La base de datos viene con el admin, y varios platos creados.
 
@@ -127,7 +123,7 @@ AVISO IMPORTANTE: Si se van a enviar por RAW la informacion, en el header se deb
 ---------
 
 IMPORTANTE!
-Para usar los siguientes endpoints, siempre se tiene que estar logeado. Pasar JWT por header.
+Para usar los siguientes endpoints, siempre se tiene que estar logeado. 
 Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados a continuacion.
 
 ---------
@@ -204,6 +200,20 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	Tenes que estar logeado.
 	No necesita body.
+
+---------
+
+* Actualizar plato (funcionalidad apta sólo para administradores)
+
+	POST /actualizarPlato/idPlato
+	
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin.
+	Se envia por Path el id del plato a actualizar. 
+	
+	BODY: {
+		"descripcion":"milanesa",
+		"precio":"200"
+	}
 
 ---------
 
