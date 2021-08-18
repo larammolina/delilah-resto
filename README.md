@@ -135,14 +135,9 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 * Obtener todos los platos del restoran (los que estan habilitados y los que no.)
 
 	GET /platos
-
-	Hay que hacer login antes de usar este endpoint. Pasar JWT por header.
 	
-	BODY:
-
-	{ "usuario":"admin"
-	  
-	}
+	Tenes que estar logeado.
+	No necesita body.
 
 ---------
 
@@ -150,13 +145,8 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 		
 	GET /platosHabilitados (los puede consultar el usuario)
 
-	Tenes que estar logeado. Pasar JWT por header.
-	
-	BODY:
-
-	{ "usuario":"admin"
-	  
-	}
+	Tenes que estar logeado.
+	No necesita body.
 
 ---------
 
@@ -164,15 +154,14 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /crearPlatos
 
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
-	Ademas se debe enviarpor body "usuario":"admin", "contrasenia":"admin", descripcion y precio del plato.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin.
+	Ademas se debe enviarpor body la descripcion y precio del plato.
 	Al dar de alta un plato, se envia por default el estado 1 en la columna habilitado. 
 	Si luego se quiere deshabilitar, usar el endpoint deshabilitarPlato/idPlato.
 
 	BODY:
 
 	{
-	   "usuario":"admin",
 	   "descripcion": "milanesa",
 	   "precio": 120
 	}
@@ -183,15 +172,13 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	DELETE /borrarPlato/idPlato
 
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. 
 	Se envia por Path el id del plato a borrar. 
 	Elimina de la tabla el plato. 
 	Si solo se quiere hacer la baja logica del Plato, se recomienda usar el endpoint deshabilitarPlato/idPlato.
 	
-	BODY:
-
-	{ "usuario":"admin"
-	}
+	Tenes que estar logeado.
+	No necesita body.
 
 ---------
 
@@ -199,15 +186,12 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /deshabilitarPlato/idPlato
 
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. 
 	Se envia por Path el id del plato a deshabilitar. 
 	Para volver a habilitarlo, de sebe usar el endpoint habilitarPlato/idPlato.
 	
-	BODY:
-
-	{ "usuario":"admin"
-	
-	}
+	Tenes que estar logeado.
+	No necesita body.	
 
 ---------
 
@@ -215,13 +199,11 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /habilitarPlato/idPlato
 	
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin.
 	Se envia por Path el id del plato a habilitar. 
 	
-	BODY:
-
-	{ "usuario":"admin"
-	}
+	Tenes que estar logeado.
+	No necesita body.
 
 ---------
 
@@ -229,11 +211,10 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	POST /altaPedido
 	
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login.
 	BODY: este pedido contiene 1 platos, plato con id1. Por default, salen con estado "nuevo" los pedidos.
 
 	{	
-	        "usuario":"macmolin",
 		 "monto":"250",
 		 "formaPago":"efectivo",
 		 "direccion":"calle falsa 123",
@@ -247,13 +228,10 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	GET /pedidos
 	
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. 
 	
-	BODY:
-
-	{ "usuario":"admin"
-	
-	}
+	Tenes que estar logeado.
+	No necesita body.
 	
 
 ---------
@@ -262,12 +240,12 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 
 	PUT /estadoPedido/idPedido
 
-	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. Pasar JWT por header.
+	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login como admin. 
 	Se debe enviar por path el idPedido y por body el estado nuevo del pedido
 	
 	BODY:
 
-	{ "usuario":"admin", 
+	{
 	  "estado":"entregado"
 	}
 
@@ -281,8 +259,5 @@ Se corre npm start, se logea en postman, y luego se usan los endpoints aclarados
 	
 	Antes de ejecutar este endpoint, tenes que haber ejecutado el endpoint Login. Pasar JWT por header.
 	Se envia por path el usuario que se desea consultar.
-	
-	BODY:
-
-	{ "usuario":"admin"
-	}
+	Tenes que estar logeado.
+	No necesita body.
