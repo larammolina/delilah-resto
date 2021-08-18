@@ -164,20 +164,33 @@ passport.deserializeUser(function (id, done) {
 ////////// MIDDLEWARES =========================================================================
 
 function esAdmin(req, res, next) {
-  connection.query("SELECT `perfil` FROM `usuarios` WHERE `usuario` = '" + req.body.usuario + "'", function (err, rows) {
-    if (err) {
-      console.log(err)
-      res.status('401').json('no existe usuario')
-    }
-    console.log('RESULTADO: ' + JSON.stringify(rows))
-    //console.log('RESULTADO: ' + rows[0].perfil)
-    if (rows[0].perfil === 'admin') {
-      next();
-    } else {
-      console.log(err)
-      res.status('401').json('no tiene permisos de admin')
-    }
-  });
+
+  const usertoken = req.headers['access-token'];
+  console.log("USERTKN " + usertoken);
+  if(usertoken != undefined) {
+        const decoded = jwt.verify(usertoken, server.get('llave'));
+        console.log(decoded);
+        //res.status(200).json(rows);
+
+        connection.query("SELECT `perfil` FROM `usuarios` WHERE `usuario` = '" + decoded.usuario + "'", function (err, rows) {
+          if (err) {
+            console.log(err)
+            res.status('401').json('no existe usuario')
+          }
+          console.log('RESULTADO: ' + JSON.stringify(rows))
+          //console.log('RESULTADO: ' + rows[0].perfil)
+          if (rows[0].perfil === 'admin') {
+            next();
+          } else {
+            console.log(err)
+            res.status('401').json('no tiene permisos de admin')
+          }
+        });
+
+  }
+
+
+  
 }
 
 //JWT
@@ -225,12 +238,12 @@ server.post('/signup', passport.authenticate('local-signup'),  //escucha los dat
 
 
 ////////// LOGIN ENDPOINT ================================================================================== 
-server.post('/login', passport.authenticate('local-login'),
-  function (req, res) {
+server.post('/login', passport.authenticate('local-login'), function (req, res) {
     // authentication successful
     console.log(res);
     const payload = {
-      check:  true
+      check:  true,
+      usuario: req.body.usuario
      };
     const token = jwt.sign(payload, server.get('llave'), {
       expiresIn: 1440
@@ -281,6 +294,7 @@ server.get('/platosHabilitados', rutasProtegidas, function (req, res) {
       res.json(respuesta);
     } else {
       console.log('RESULTADO: ' + JSON.stringify(rows))
+      res.status(200).json(rows);
       //console.log('RESULTADO: ' + rows[0].perfil)
       //ver como manda el pedido para mostrarlo por json
       //let respuesta = {
@@ -288,7 +302,7 @@ server.get('/platosHabilitados', rutasProtegidas, function (req, res) {
        // codigo: 200,
       //  mensajes: 'OK'
       //};
-      res.status(200).json(rows);
+      
     }
   });
 });
@@ -450,51 +464,38 @@ server.post('/altaPedido', rutasProtegidas, function (req, res) {
   //recibir pedidos 
   //recibir usuario
   //busco id de usuario
-  console.log("Usuario: "+req.body.usuario);
-  var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + req.body.usuario + "'";
-  console.log('platos: ' + req.body.platos);
-  let platos = req.body.platos;
 
-  connection.query(consultaIdUsuario, function (err, rows) {
-    let idUsuario = rows[0].id;
-    //console.log('resultado idUsuario' + idUsuario);
-    //doy de alta el pedido
-    console.log('creando pedido')
+  const usertoken = req.headers['access-token'];
+  console.log("USERTKN " + usertoken);
+  if(usertoken != undefined) {
+        const decoded = jwt.verify(usertoken, server.get('llave'));
+        console.log(decoded);
 
-    var date = new Date();
-    date = date.getUTCFullYear() + '-' +
-      pad(date.getUTCMonth() + 1) + '-' +
-      pad(date.getUTCDate()) + ' ' +
-      pad(date.getUTCHours()) + ':' +
-      pad(date.getUTCMinutes()) + ':' +
-      pad(date.getUTCSeconds());
 
-    var insertPedido = `INSERT INTO pedidosPorUsuario (idUsuario, monto, formaPago, direccion, estado, fecha) 
-        VALUES ('${idUsuario}','${req.body.monto}', '${req.body.formaPago}', '${req.body.direccion}', 'nuevo', '${date}')`;
-    console.log(insertPedido);
-    connection.query(insertPedido, function (err, results, fields) {
-      if (err) {
-        let respuesta = {
-          error: true,
-          codigo: 401,
-          mensajes: 'No se pudo dar de alta el pedido1'
-        };
-        console.log(err);
-        res.json(respuesta);
 
-      } else {
-        //hacemos una consulta para saber el 
+        console.log("Usuario: "+decoded.usuario);
+        var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + decoded.usuario + "'";
+        console.log('platos: ' + req.body.platos);
+        let platos = req.body.platos;
 
-        console.log(JSON.stringify(results.insertId));
-        let idPedido = JSON.stringify(results.insertId);
+        connection.query(consultaIdUsuario, function (err, rows) {
+          let idUsuario = rows[0].id;
+          //console.log('resultado idUsuario' + idUsuario);
+          //doy de alta el pedido
+          console.log('creando pedido')
 
-        //if (platos.length <= 1) {
-        if(Array.isArray(platos) == false){
-          console.log('NO ES ARRAY -- TAMAÑO '+platos.length);
-          //envio la lista al SQL
-          var sql = `INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) VALUES ('${idPedido}', '${platos}', '${1}' )`;
+          var date = new Date();
+          date = date.getUTCFullYear() + '-' +
+            pad(date.getUTCMonth() + 1) + '-' +
+            pad(date.getUTCDate()) + ' ' +
+            pad(date.getUTCHours()) + ':' +
+            pad(date.getUTCMinutes()) + ':' +
+            pad(date.getUTCSeconds());
 
-          connection.query(sql, function (err, results, fields) {
+          var insertPedido = `INSERT INTO pedidosPorUsuario (idUsuario, monto, formaPago, direccion, estado, fecha) 
+              VALUES ('${idUsuario}','${req.body.monto}', '${req.body.formaPago}', '${req.body.direccion}', 'nuevo', '${date}')`;
+          console.log(insertPedido);
+          connection.query(insertPedido, function (err, results, fields) {
             if (err) {
               let respuesta = {
                 error: true,
@@ -505,71 +506,94 @@ server.post('/altaPedido', rutasProtegidas, function (req, res) {
               res.json(respuesta);
 
             } else {
-              let respuesta = {
-                error: false,
-                codigo: 200,
-                mensajes: 'Se dio de alta el pedido exitosamente'
-              };
-              res.json(respuesta);
+              //hacemos una consulta para saber el 
+
+              console.log(JSON.stringify(results.insertId));
+              let idPedido = JSON.stringify(results.insertId);
+
+              //if (platos.length <= 1) {
+              if(Array.isArray(platos) == false){
+                console.log('NO ES ARRAY -- TAMAÑO '+platos.length);
+                //envio la lista al SQL
+                var sql = `INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) VALUES ('${idPedido}', '${platos}', '${1}' )`;
+
+                connection.query(sql, function (err, results, fields) {
+                  if (err) {
+                    let respuesta = {
+                      error: true,
+                      codigo: 401,
+                      mensajes: 'No se pudo dar de alta el pedido1'
+                    };
+                    console.log(err);
+                    res.json(respuesta);
+
+                  } else {
+                    let respuesta = {
+                      error: false,
+                      codigo: 200,
+                      mensajes: 'Se dio de alta el pedido exitosamente'
+                    };
+                    res.json(respuesta);
+                  }
+                });
+
+
+
+
+              } else {
+                console.log('ES ARRAY -- TAMAÑÑÑOOOOOOOOOO '+platos.length);
+                let current = 0, cnt = 0;
+                //Ordeno la cantidad y saco cuanto hay de cada uno
+                platos.sort();
+                var count = {};
+                platos.forEach(function (i) {
+                  count[i] = (count[i] || 0) + 1;
+                });
+                let lista = [];
+                Array.from(Object.keys(count)).forEach(function (key) {
+                  console.log(key + ":" + count[key]);
+                  aux++;
+                  let idPlato = key;
+                  let cantidadPlato = count[key];
+                  //var insertPlatosPorPedido = `INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) 
+                  //VALUES ('${idPedido}','${idPlato}','${cantidadPlato}' )`;
+                  //console.log(insertPlatosPorPedido);
+
+
+                  var aux = [parseInt(idPedido, 10), parseInt(idPlato, 10), cantidadPlato]
+                  console.log("LISTA: " + aux)
+                  lista.push(aux);
+
+                });
+
+                //envio la lista al SQL
+                var sql = "INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) VALUES ?";
+                console.log(lista)
+
+                connection.query(sql, [lista], function (err, results, fields) {
+                  if (err) {
+                    let respuesta = {
+                      error: true,
+                      codigo: 404,
+                      mensajes: 'No se pudo dar de alta el pedido1'
+                    };
+                    console.log(err);
+                    res.json(respuesta);
+
+                  } else {
+                    let respuesta = {
+                      error: false,
+                      codigo: 200,
+                      mensajes: 'Se dio de alta el pedido exitosamente'
+                    };
+                    res.json(respuesta);
+                  }
+                });
+              }
             }
           });
-
-
-
-
-        } else {
-          console.log('ES ARRAY -- TAMAÑÑÑOOOOOOOOOO '+platos.length);
-          let current = 0, cnt = 0;
-          //Ordeno la cantidad y saco cuanto hay de cada uno
-          platos.sort();
-          var count = {};
-          platos.forEach(function (i) {
-            count[i] = (count[i] || 0) + 1;
-          });
-          let lista = [];
-          Array.from(Object.keys(count)).forEach(function (key) {
-            console.log(key + ":" + count[key]);
-            aux++;
-            let idPlato = key;
-            let cantidadPlato = count[key];
-            //var insertPlatosPorPedido = `INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) 
-            //VALUES ('${idPedido}','${idPlato}','${cantidadPlato}' )`;
-            //console.log(insertPlatosPorPedido);
-
-
-            var aux = [parseInt(idPedido, 10), parseInt(idPlato, 10), cantidadPlato]
-            console.log("LISTA: " + aux)
-            lista.push(aux);
-
-          });
-
-          //envio la lista al SQL
-          var sql = "INSERT INTO productosPedidos (idPedido, idPlato, cantidadPlato) VALUES ?";
-          console.log(lista)
-
-          connection.query(sql, [lista], function (err, results, fields) {
-            if (err) {
-              let respuesta = {
-                error: true,
-                codigo: 404,
-                mensajes: 'No se pudo dar de alta el pedido1'
-              };
-              console.log(err);
-              res.json(respuesta);
-
-            } else {
-              let respuesta = {
-                error: false,
-                codigo: 200,
-                mensajes: 'Se dio de alta el pedido exitosamente'
-              };
-              res.json(respuesta);
-            }
-          });
-        }
-      }
-    });
-  });
+        });
+  }
 });
 var pad = function (num) { return ('00' + num).slice(-2) };
 Object.size = function (obj) {
@@ -582,29 +606,35 @@ Object.size = function (obj) {
 };
 
 //////////  LOS PEDIDOS DEL USUARIO ENDPOINT ===================================================================
-server.get('/pedidosUsuario/:usuario', rutasProtegidas, function (req, res) {
+server.get('/pedidosUsuario/', rutasProtegidas, function (req, res) {
   //ver todos los pedidos de ese usuario en particular
-  const { usuario } = req.params;
-  var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario + "'";
+  //const { usuario } = req.params;
+  const usertoken = req.headers['access-token'];
+  console.log("USERTKN " + usertoken);
+  if(usertoken != undefined) {
+        const decoded = jwt.verify(usertoken, server.get('llave'));
+        console.log(decoded);
+    var consultaIdUsuario = "SELECT * FROM `usuarios` WHERE `usuario` = '" + decoded.usuario + "'";
 
-  connection.query(consultaIdUsuario, function (err, rows) {
-    let idUsuario = rows[0].id;
-    console.log('resultado idUsuario' + idUsuario);
-    console.log('consultando pedido del usuario')
+    connection.query(consultaIdUsuario, function (err, rows) {
+      let idUsuario = rows[0].id;
+      console.log('resultado idUsuario' + idUsuario);
+      console.log('consultando pedido del usuario')
 
-    var consultaPedidoUsuario = "SELECT * FROM `pedidosPorUsuario` LEFT JOIN productosPedidos ON pedidosPorUsuario.idPedido = productosPedidos.idPedido WHERE pedidosPorUsuario.idUsuario =" + idUsuario;
-    connection.query(consultaPedidoUsuario, function (err, rows) {
-      if (err) {
-        console.log(err)
-        res.status('401').json('error')
-      } else {
-        console.log('RESULTADO: ' + JSON.stringify(rows))
-        //console.log('RESULTADO: ' + rows[0].perfil)
-        //ver como manda el pedido para mostrarlo por json
-        res.status(200).json(rows);
-      }
+      var consultaPedidoUsuario = "SELECT * FROM `pedidosPorUsuario` LEFT JOIN productosPedidos ON pedidosPorUsuario.idPedido = productosPedidos.idPedido WHERE pedidosPorUsuario.idUsuario =" + idUsuario;
+      connection.query(consultaPedidoUsuario, function (err, rows) {
+        if (err) {
+          console.log(err)
+          res.status('401').json('error')
+        } else {
+          console.log('RESULTADO: ' + JSON.stringify(rows))
+          //console.log('RESULTADO: ' + rows[0].perfil)
+          //ver como manda el pedido para mostrarlo por json
+          res.status(200).json(rows);
+        }
+      });
     });
-  });
+  }
 });
 
 ////////// TODOS LOS PEDIDOS ADMIN ENDPOINT ===================================================================
@@ -663,4 +693,52 @@ server.put('/estadoPedido/:idPedido', rutasProtegidas, esAdmin, function (req, r
   });
 });
 
+////////// ELIMINAR UN PEDIDO ENDPOINT ==========================================================================================
+server.delete('/eliminarPedido/:idPedido', rutasProtegidas, esAdmin, function (req, res) {
+  //se ingresa el id del pedido que se quiere volver a habilitar
+  const { idPedido } = req.params;
 
+  let borrarProductosPedidos = "DELETE FROM productosPedidos WHERE idPedido=" + idPedido;
+  connection.query(borrarProductosPedidos, function (err, rows) {
+    if (err) {
+      console.log(err)
+      console.log('no se pudo borrar el plato del pedid')
+      let respuesta = {
+        error: true,
+        codigo: 404,
+        mensajes: 'Error'
+      };
+      res.json(respuesta);
+    } else {
+      console.log('RESULTADO: ' + JSON.stringify(rows))
+      console.log('Se borro el plato del pedido ok')
+      let borrarPedido = "DELETE FROM pedidosPorUsuario WHERE idPedido=" + idPedido;
+      connection.query(borrarPedido, function (err, rows) {
+        if (err) {
+          console.log(err)
+          console.log('no se pudo borrar el pedido')
+          let respuesta = {
+            error: true,
+            codigo: 404,
+            mensajes: 'Error'
+          };
+          res.json(respuesta);
+        } else {
+          console.log('RESULTADO: ' + JSON.stringify(rows))
+          console.log('Se borro el pedido ok')
+          let respuesta = {
+            error: false,
+            codigo: 200,
+            mensajes: 'Se borro el pedido ok'
+          };
+          res.json(respuesta);
+        }
+      });
+    }
+  });  
+});
+
+
+
+
+  
